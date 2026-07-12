@@ -1,15 +1,15 @@
 import fitz
 
 
-def extraire_texte_pdf(chemin_pdf):
-    doc = fitz.open(chemin_pdf)
-    print(f"le document contient {len(doc)} pages ")
+def extraire_texte_pdf(chemin_pdf: str) -> str:
+   
+    liste_pages = []
 
-    liste_page = [ ]
-    for page in doc:
-        texte = page.get_text()
-        if texte.strip() != "" :
-            liste_page.append(texte)
-        texte_complet = "\n".join(liste_page)
-    return texte_complet
+    with fitz.open(chemin_pdf) as doc:
+        for page in doc:
+            texte = page.get_text()
 
+            if texte.strip():
+                liste_pages.append(texte)
+
+    return "\n".join(liste_pages)
