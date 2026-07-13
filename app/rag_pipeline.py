@@ -44,6 +44,23 @@ class AssistantDocumentaire:
         self.creer_vectorstore()
 
 
+    def rechercher_passages(self, question: str, k: int = 3):
+        if self.vectorstore is None:
+            raise ValueError(
+                "Aucun document n'a été chargé. "
+                "Utilisez d'abord charger_document()."
+            )
+
+        resultats = self.vectorstore.similarity_search(
+            question,
+            k=k
+        )
+
+        return resultats
+    
+
+    def poser_question(self) :
+
 
 
 
