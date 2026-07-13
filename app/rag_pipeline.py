@@ -11,16 +11,16 @@ from langchain_community.vectorstores import FAISS
 
 class AssistantDocumentaire:
 
-    def __init__(self, pdf_path: str, api_key: str):
-        self.pdf_path = pdf_path
+    def __init__(self, api_key: str):
         self.key = api_key
 
-        self.texte_complet = extraire_texte_pdf(pdf_path)
-        self.texte_nettoye = nettoyer_texte(self.texte_complet)
-        self.chunks = creer_chunks(self.texte_nettoye)
-
+        self.pdf_path = None
+        self.texte_complet = None
+        self.texte_nettoye = None
+        self.chunks = []
         self.embedding = None
         self.vectorstore = None
+
 
     def creer_vectorstore(self):
         self.embedding = OpenAIEmbeddings(
@@ -34,6 +34,16 @@ class AssistantDocumentaire:
         )
 
         return self.vectorstore
+
+
+    def charger_document(self, pdf_path: str):
+        self.pdf_path = pdf_path
+        self.texte_complet = extraire_texte_pdf(pdf_path)
+        self.texte_nettoye = nettoyer_texte(self.texte_complet)
+        self.chunks = creer_chunks(self.texte_nettoye)
+        self.creer_vectorstore()
+
+
 
 
 
