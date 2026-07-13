@@ -6,7 +6,5 @@ def creer_chunks( texte, chunk_size=1000, chunk_overlap=100 ) :
         chunk_overlap = chunk_overlap , 
         separators= ["\n\n" , "\n" , " " , ""]
     )
-
-    chunks = splitter.split_text(texte)
-
-    return chunks
+    
+    return  splitter.split_text(texte)
