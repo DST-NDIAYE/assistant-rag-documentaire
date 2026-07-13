@@ -3,6 +3,7 @@ from app.text_cleaning import nettoyer_texte
 from app.splitter import creer_chunks
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
+from langchain_openai import ChatOpenAI
 
 
 
@@ -21,6 +22,10 @@ class AssistantDocumentaire:
         self.embedding = None
         self.vectorstore = None
 
+        self.llm = ChatOpenAI(
+            api_key=self.key,
+            model="gpt-4.1-mini",
+            temperature=0   )
 
     def creer_vectorstore(self):
         self.embedding = OpenAIEmbeddings(
@@ -59,7 +64,34 @@ class AssistantDocumentaire:
         return resultats
     
 
-    def poser_question(self) :
+
+
+
+    def poser_question(self, question: str, k: int = 3) -> str:
+        resultats = self.rechercher_passages(
+            question=question,
+            k=k
+        )
+
+        contexte = "\n\n".join( document.page_content for document in resultats )
+
+        prompt = f"""
+        Tu es un assistant d'analyse documentaire.
+
+        Réponds uniquement à partir du contexte fourni.
+        Si la réponse n'est pas présente dans le contexte, indique clairement
+        que l'information n'a pas été trouvée dans le document.
+
+        Contexte :
+        {contexte}
+
+        Question :
+        {question} 
+        """
+
+        reponse = self.llm.invoke(prompt)
+
+        return reponse.content
 
 
 
