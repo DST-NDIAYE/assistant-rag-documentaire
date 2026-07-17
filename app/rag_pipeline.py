@@ -84,6 +84,6 @@ class AssistantDocumentaire:
 
         reponse = self.llm.invoke(prompt)
 
-        return {"reponse": reponse.content,
+        return {"reponse": reponse,
                 "sources": resultats }
 
