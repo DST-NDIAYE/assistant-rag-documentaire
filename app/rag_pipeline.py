@@ -29,7 +29,7 @@ class AssistantDocumentaire:
         )
 
         self.vectorstore = FAISS.from_documents(
-            texts=self.chunks,
+            documents = self.chunks,
             embedding=self.embedding
         )
 
