@@ -5,11 +5,6 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
 
-
-
-
-
-
 class AssistantDocumentaire:
 
     def __init__(self, api_key: str):
@@ -65,8 +60,6 @@ class AssistantDocumentaire:
     
 
 
-
-
     def poser_question(self, question: str, k: int = 3) -> str:
         resultats = self.rechercher_passages(
             question=question,
@@ -91,9 +84,6 @@ class AssistantDocumentaire:
 
         reponse = self.llm.invoke(prompt)
 
-        return reponse.content
-
-
-
-
+        return {"reponse": reponse.content,
+                "sources": resultats }
 
