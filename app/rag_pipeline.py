@@ -1,5 +1,5 @@
-from app.pdf_loader import extraire_texte_pdf
-from app.text_cleaning import nettoyer_texte
+from app.pdf_loader import extraire_pages_pdf
+from app.text_cleaning import nettoyer_texte , nettoyer_documents
 from app.splitter import creer_chunks
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -28,7 +28,7 @@ class AssistantDocumentaire:
             model="text-embedding-3-large"
         )
 
-        self.vectorstore = FAISS.from_texts(
+        self.vectorstore = FAISS.from_documents(
             texts=self.chunks,
             embedding=self.embedding
         )
@@ -38,9 +38,10 @@ class AssistantDocumentaire:
 
     def charger_document(self, pdf_path: str):
         self.pdf_path = pdf_path
-        self.texte_complet = extraire_texte_pdf(pdf_path)
-        self.texte_nettoye = nettoyer_texte(self.texte_complet)
-        self.chunks = creer_chunks(self.texte_nettoye)
+        pages = extraire_pages_pdf(pdf_path)
+        pages_nettoyer = nettoyer_documents(pages)
+
+        self.chunks = creer_chunks(pages_nettoyer)
         self.creer_vectorstore()
 
 
