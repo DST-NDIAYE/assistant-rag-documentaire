@@ -12,20 +12,20 @@ def nettoyer_texte(texte):
 
 
 
-def nettoyer_documents(documents :list[Document]) -> list[Document] :
+def nettoyer_documents(pdfs :list[Document]) -> list[Document] :
     documents_nettoyes = []
+    for documents in pdfs :
+        for document in documents:
+            texte_nettoye = nettoyer_texte(document.page_content)
 
-    for document in documents:
-        texte_nettoye = nettoyer_texte(document.page_content)
+            if not texte_nettoye:
+                continue
 
-        if not texte_nettoye:
-            continue
+            document_nettoye = Document(
+                page_content=texte_nettoye,
+                metadata=document.metadata.copy()
+            )
 
-        document_nettoye = Document(
-            page_content=texte_nettoye,
-            metadata=document.metadata.copy()
-        )
-
-        documents_nettoyes.append(document_nettoye)
+            documents_nettoyes.append(document_nettoye)
 
     return documents_nettoyes
