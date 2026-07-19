@@ -8,7 +8,7 @@ from pathlib import Path
 
 class AssistantDocumentaire:
 
-    def __init__(self, api_key: str , chemin_vectorstore: str = "vectorstore"):
+    def __init__(self, api_key: str , chemin_vectorstore: str = "../vectorstore"):
         self.key = api_key
 
         self.chemin_vectorstore = Path(chemin_vectorstore)
@@ -16,8 +16,10 @@ class AssistantDocumentaire:
         self.texte_complet = None
         self.texte_nettoye = None
         self.chunks = []
-        self.embedding = None
         self.vectorstore = None
+
+        self.embedding = OpenAIEmbeddings(api_key=self.key,
+                                          model="text-embedding-3-large" )
 
         self.llm = ChatOpenAI(
             api_key=self.key,
@@ -26,12 +28,34 @@ class AssistantDocumentaire:
 
 
 
+    def charger_document(self, path_documents: str , reconstruire: bool = False) :
+        self.pdf_path = path_documents
+
+        if self.vectorstore_existe() and not reconstruire:
+            self.charger_vectorstore()
+            return
+    
+        documents = extraire_pages_pdf(path_documents)
+        documents_nettoyes = nettoyer_documents(documents)
+        self.chunks = creer_chunks( documents_nettoyes )
+       
+        self.creer_vectorstore()
+        print(f"Nombre de documents extraits : {len(documents)}")
+        print(f"Nombre de chunks créés : {len(self.chunks)}")
+
+
+
     def creer_vectorstore(self):
-        self.embedding = OpenAIEmbeddings(api_key=self.key, model="text-embedding-3-large" )
+        if not self.chunks:
+            raise ValueError(
+                "Aucun chunk disponible pour créer le vectorstore."
+            )
+
         self.vectorstore = FAISS.from_documents(
-            documents = self.chunks,
+            documents=self.chunks,
             embedding=self.embedding
         )
+
         self.sauvegarder_vectorstore()
 
 
@@ -42,12 +66,10 @@ class AssistantDocumentaire:
         return fichier_faiss.exists() and fichier_pickle.exists()
 
 
-
-
     def charger_vectorstore(self):
-        self.vectorstore = FAISS.load_local ( folder_path=self.chemin_vectorstore , embeddings= self.embedding       )
+        self.vectorstore = FAISS.load_local ( folder_path=self.chemin_vectorstore , 
+                                             embeddings= self.embedding  , allow_dangerous_deserialization=True     )
         
-
 
     def sauvegarder_vectorstore(self):
         self.vectorstore.save_local(str(self.chemin_vectorstore))
@@ -91,6 +113,14 @@ class AssistantDocumentaire:
 
         reponse = self.llm.invoke(prompt)
 
-        return {"reponse": reponse,
+        return {"reponse": reponse.content,
                 "sources": resultats }
 
+
+
+
+
+
+
+
+   
