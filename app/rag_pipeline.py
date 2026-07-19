@@ -4,12 +4,14 @@ from app.splitter import creer_chunks
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
+from pathlib import Path
 
 class AssistantDocumentaire:
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str , chemin_vectorstore: str = "vectorstore"):
         self.key = api_key
 
+        self.chemin_vectorstore = Path(chemin_vectorstore)
         self.pdf_path = None
         self.texte_complet = None
         self.texte_nettoye = None
@@ -22,27 +24,38 @@ class AssistantDocumentaire:
             model="gpt-4.1-mini",
             temperature=0   )
 
-    def creer_vectorstore(self):
-        self.embedding = OpenAIEmbeddings(
-            api_key=self.key,
-            model="text-embedding-3-large"
-        )
 
+
+    def creer_vectorstore(self):
+        self.embedding = OpenAIEmbeddings(api_key=self.key, model="text-embedding-3-large" )
         self.vectorstore = FAISS.from_documents(
             documents = self.chunks,
             embedding=self.embedding
         )
-
         return self.vectorstore
 
 
-    def charger_document(self, pdf_path: str):
-        self.pdf_path = pdf_path
-        pages = extraire_pages_pdf(pdf_path)
-        pages_nettoyer = nettoyer_documents(pages)
+    def vectorstore_existe(self) -> bool:
+        fichier_faiss = self.chemin_vectorstore / "index.faiss"
+        fichier_pickle = self.chemin_vectorstore / "index.pkl"
 
-        self.chunks = creer_chunks(pages_nettoyer)
-        self.creer_vectorstore()
+        return fichier_faiss.exists() and fichier_pickle.exists()
+
+
+
+
+    def charger_vectorstore():
+        pass
+
+
+    def sauvegarder_vectorstore():
+        pass
+
+
+
+
+
+
 
 
     def rechercher_passages(self, question: str, k: int = 3):
@@ -62,10 +75,7 @@ class AssistantDocumentaire:
 
 
     def poser_question(self, question: str, k: int = 3) -> str:
-        resultats = self.rechercher_passages(
-            question=question,
-            k=k
-        )
+        resultats = self.rechercher_passages( question=question, k=k )
 
         contexte = "\n\n".join( document.page_content for document in resultats )
 
