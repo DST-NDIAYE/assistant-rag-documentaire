@@ -32,7 +32,7 @@ class AssistantDocumentaire:
             documents = self.chunks,
             embedding=self.embedding
         )
-        return self.vectorstore
+        self.sauvegarder_vectorstore()
 
 
     def vectorstore_existe(self) -> bool:
@@ -44,18 +44,14 @@ class AssistantDocumentaire:
 
 
 
-    def charger_vectorstore():
-        pass
+    def charger_vectorstore(self):
+        self.vectorstore = FAISS.load_local ( folder_path=self.chemin_vectorstore , embeddings= self.embedding       )
+        
 
 
-    def sauvegarder_vectorstore():
-        pass
-
-
-
-
-
-
+    def sauvegarder_vectorstore(self):
+        self.vectorstore.save_local(str(self.chemin_vectorstore))
+        print(f"Vectorstore sauvegardé dans : "f"{self.chemin_vectorstore}" )
 
 
     def rechercher_passages(self, question: str, k: int = 3):
