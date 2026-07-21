@@ -24,3 +24,4 @@ umap-learn
 langchain_chroma
 langchain_pinecone
 spacy
+fastapi
